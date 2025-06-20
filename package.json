@@ -1,0 +1,36 @@
+{
+  "name": "ide-a",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+        "start": "concurrently \"node backend/server.js\" \"peerjs --port 9000 --key peerjs --path /\" \"live-server frontend\""
+  },
+  "dependencies": {
+    "@material-tailwind/react": "^1.4.2",
+    "@monaco-editor/react": "^4.4.6",
+    "do_username": "^1.0.0",
+    "peerjs": "^1.4.7",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-jss": "^10.10.0",
+    "react-router-dom": "^6.8.1",
+    "uuid": "^9.0.0",
+    "vite-plugin-svgr": "^2.4.0",
+    "xterm-for-react-18": "^1.0.28",
+    "y-indexeddb": "^9.0.9",
+    "y-monaco": "^0.1.4",
+    "y-webrtc": "^10.2.4",
+    "yjs": "^13.5.45"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.27",
+    "@types/react-dom": "^18.0.10",
+    "@vitejs/plugin-react": "^3.1.0",
+    "autoprefixer": "^10.4.13",
+    "concurrently": "^9.1.2",
+    "postcss": "^8.4.21",
+    "tailwindcss": "^3.2.6",
+    "vite": "^4.1.0"
+  }
+}

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>CollabWrite - Home</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h2>
+      Welcome, <span id="user"></span><br>
+    </h2>
+
+    <div class="peer-id-row" style="margin-bottom: 20px;">
+      Your ID: <span id="peer-id"></span>
+      <button id="copy-btn" onclick="copyPeerId()">Copy</button>
+    </div>
+
+    <div style="text-align: center; margin: 20px 0;">
+      <strong>Or</strong>
+    </div>
+
+    <!-- Connect input + button -->
+    <div class="input-group" style="margin-top: 20px;">
+      <input id="connect-to-id" placeholder="Enter peer ID to connect">
+      <button onclick="connectToPeer()">Connect</button>
+    </div>
+
+    <textarea id="chat" readonly></textarea>
+
+    <div class="input-group">
+      <input id="message" placeholder="Message">
+      <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <button id="logout-btn" class="logout-btn" onclick="logout()">Logout</button>
+  </div>
+
+  <script>
+    const username = localStorage.getItem('username');
+    if (!username) {
+      window.location.href = 'index.html';
+    } else {
+      document.getElementById('user').textContent = username;
+    }
+
+    const peer = new Peer({ host: 'localhost', port: 9000, path: '/' });
+    let conn;
+
+    peer.on('open', id => {
+      console.log('Peer opened with ID:', id);
+      document.getElementById('peer-id').textContent = id;
+    });
+
+    peer.on('connection', c => {
+      c.on('data', data => {
+        if (data.type === 'connect-request') {
+          const approve = confirm(`${data.from} wants to connect. Approve?`);
+          if (approve) {
+            conn = c;
+            conn.send({ type: 'connect-accepted', from: username });
+            setupConnectionHandlers(conn);
+          } else {
+            c.send({ type: 'connect-rejected', from: username });
+            c.close();
+          }
+        } else if (data.type === 'message') {
+          document.getElementById('chat').value += `${data.from}: ${data.message}\n`;
+        }
+      });
+    });
+
+    function connectToPeer() {
+      const peerId = document.getElementById('connect-to-id').value;
+      conn = peer.connect(peerId);
+      conn.on('open', () => {
+        conn.send({ type: 'connect-request', from: username });
+      });
+
+      conn.on('data', data => {
+        if (data.type === 'connect-accepted') {
+          setupConnectionHandlers(conn);
+          document.getElementById('chat').value += `Connected to ${data.from}\n`;
+        } else if (data.type === 'connect-rejected') {
+          alert(`Connection rejected by ${data.from}`);
+          conn.close();
+        }
+      });
+    }
+
+    function setupConnectionHandlers(c) {
+      c.on('data', data => {
+        if (data.type === 'message') {
+          document.getElementById('chat').value += `${data.from}: ${data.message}\n`;
+        }
+      });
+    }
+
+    function sendMessage() {
+      const msg = document.getElementById('message').value;
+      if (!conn || conn.open === false) {
+        alert('No active connection');
+        return;
+      }
+      conn.send({ type: 'message', from: username, message: msg });
+      document.getElementById('chat').value += `You: ${msg}\n`;
+      document.getElementById('message').value = '';
+    }
+
+    function copyPeerId() {
+      const peerId = document.getElementById('peer-id').textContent;
+      navigator.clipboard.writeText(peerId).then(() => {
+        alert('Peer ID copied!');
+      });
+    }
+
+    function logout() {
+      localStorage.removeItem('username');
+      window.location.href = 'index.html';
+    }
+  </script>
+</body>
+</html>

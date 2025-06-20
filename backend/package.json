@@ -1,0 +1,21 @@
+{
+  "name": "collabwrite-project",
+  "version": "1.0.0",
+  "description": "",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "concurrently \"node backend/server.js\" \"peerjs --port 9000 --key peerjs --path /\" \"live-server frontend\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "peer": "^1.0.2"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "live-server": "^1.2.2"
+  }
+}
